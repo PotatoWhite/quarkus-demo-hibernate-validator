@@ -1,10 +1,10 @@
 package me.potato.demo;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import me.potato.demo.model.Book;
 
-import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
@@ -16,13 +16,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/")
+@RequiredArgsConstructor
 public class BookResource {
 
-  @Inject
-  BookService bookService;
-
-  @Inject
-  private Validator validator;
+  private final BookService bookService;
+  private final Validator   validator;
 
   @Path("manual-validation")
   @POST
