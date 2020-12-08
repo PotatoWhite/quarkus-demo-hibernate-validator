@@ -6,6 +6,7 @@ import me.potato.demo.model.Book;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import javax.validation.Validator;
 import javax.ws.rs.Consumes;
@@ -18,6 +19,9 @@ import java.util.stream.Collectors;
 
 @Path("/")
 public class BookResource {
+
+  @Inject
+  BookService bookService;
 
   @Inject
   private Validator validator;
@@ -36,8 +40,19 @@ public class BookResource {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
-  public Result endPointValidation(@Valid Book book){
+  public Result endPointValidation(@Valid Book book) {
     return new Result("Book is valid!");
+  }
+
+  @Path("service-method-validation")
+  @POST
+  public Result serviceMethodValidation(Book book) {
+    try {
+      bookService.validateBook(book);
+      return new Result("Book is valid!");
+    } catch(ConstraintViolationException e) {
+      return new Result(e.getConstraintViolations());
+    }
   }
 
   @Getter
@@ -47,7 +62,7 @@ public class BookResource {
     private Boolean success=false;
     private String  message;
 
-    public Result(Set<ConstraintViolation<Book>> violations) {
+    public Result(Set<? extends ConstraintViolation<?>> violations) {
       this.success=false;
       this.message=violations.stream()
                              .map(violation -> violation.getMessage())
